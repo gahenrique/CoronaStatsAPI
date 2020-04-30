@@ -8,7 +8,6 @@ class Access:
         endPoint = "https://corona.lmao.ninja/v2/historical/%s?lastdays=%d" % (countries, nDays + 1)
         request = requests.get(endPoint)
         countriesParse = request.json()
-
         days = list(countriesParse[0]["timeline"]["deaths"].keys())[1:]
         daysFormatted = [Access.__formatDate(d) for d in days]
         growth = {"days": daysFormatted, "deaths":[]}
@@ -21,8 +20,8 @@ class Access:
         return growth
 
     @staticmethod
-    def getDeathGrowthChart():
-        data = Access.__deathGrowth("Brazil, USA, Spain, China", 30)
+    def getDeathGrowthChart(countries):
+        data = Access.__deathGrowth(countries, 30)
         json={"x": [], "y": [], "labels": []}
 
         for d in data["deaths"]:
@@ -30,8 +29,7 @@ class Access:
             json["y"].append(d["growth"])
             json["labels"].append(d["country"])
         
-        # endPoint = "http://chartapi-env.eba-cppqupxx.us-east-1.elasticbeanstalk.com/plot/line"
-        endPoint = "http://localhost:8000/plot/line"
+        endPoint = "http://chartapi-env.eba-cppqupxx.us-east-1.elasticbeanstalk.com/plot/line"
         r = requests.post(endPoint, json=json, stream=True)
         buffer = BytesIO()
         shutil.copyfileobj(r.raw, buffer)
@@ -57,3 +55,16 @@ class Access:
             data["casesPerMillion"].append(c["casesPerOneMillion"])
         
         return data
+    
+    @staticmethod
+    def getAllCases(label):
+        # deaths / cases / recovered
+        
+        if not (label is "deaths") and not (label is "cases") and not (label is "recovered"):
+            return -1
+
+        endPoint = "https://disease.sh/v2/historical/all?lastdays=1"
+        request = requests.get(endPoint)
+        allCasesParse = request.json()
+
+        return allCasesParse[label]
