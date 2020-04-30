@@ -1,0 +1,1 @@
+# CoronaAppAPI feeds the Corona app
